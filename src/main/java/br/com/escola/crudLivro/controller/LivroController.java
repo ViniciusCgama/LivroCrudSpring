@@ -4,6 +4,7 @@ import br.com.escola.crudLivro.LivroRegistroRequest;
 import br.com.escola.crudLivro.model.Livro;
 import br.com.escola.crudLivro.repository.LivroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -40,5 +41,48 @@ public class LivroController {
         repository.save(livro);
 
         return ResponseEntity.ok("Livro registrado com sucesso");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteLivro(@PathVariable Long id) {
+        Optional<Livro> livroOptional = repository.findById(id);
+        if (livroOptional.isPresent()) {
+            repository.deleteById(id);
+            return ResponseEntity.ok("Livro excluído com sucesso");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> editLivro(@PathVariable int id, @RequestBody LivroRegistroRequest livroRequest) {
+        Optional<Livro> livroOptional = repository.findById(id);
+        if (livroOptional.isPresent()) {
+            Livro livro = livroOptional.get();
+
+            if (livroRequest.getTitulo() != null) {
+                livro.setTitulo(livroRequest.getTitulo());
+            }
+            if (livroRequest.getAutor() != null) {
+                livro.setAutor(livroRequest.getAutor());
+            }
+            if (livroRequest.getDescricao() != null) {
+                livro.setDescricao(livroRequest.getDescricao());
+            }
+            if (livroRequest.getGenero() != null) {
+                livro.setGenero(livroRequest.getGenero());
+            }
+            if (livroRequest.getEditora() != null) {
+                livro.setEditora(livroRequest.getEditora());
+            }
+            if (livroRequest.getAnoLancamento() != 0) {
+                livro.setAnoLancamento(livroRequest.getAnoLancamento());
+            }
+
+            repository.save(livro);
+            return ResponseEntity.ok("Livro atualizado com sucesso");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado");
+        }
     }
 }
